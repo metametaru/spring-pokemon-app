@@ -1,64 +1,50 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { getAllPokemon, getPokemon } from "../utils/pokemon";
 import { toPokemon } from "../utils/toPokemon";
-import { Pokemon } from "../types/pokemon";
 import Card from "../components/Card/Card";
 import styles from "./page.module.css";
+import Link from "next/link";
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const LIMIT = 20;
+  const { offset: offsetParam } = await searchParams;
+  const offset =
+    Number(Array.isArray(offsetParam) ? offsetParam[0] : offsetParam) || 0;
 
-  const [offset, setOffset] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [pokemonData, setPokemonData] = useState<Pokemon[]>([]);
+  const POKEAPI_BASE_URL =
+    process.env.NEXT_PUBLIC_POKEAPI_BASE_URL || "https://pokeapi.co/api/v2";
 
-  useEffect(() => {
-    const fetchPokemonData = async () => {
-      const res = await getAllPokemon(
-        `https://pokeapi.co/api/v2/pokemon?limit=${LIMIT}&offset=${offset}`
-      );
-      const details = await Promise.all(
-        res.results.map(async (p: { url: string }) =>
-          toPokemon(await getPokemon(p.url))
-        )
-      );
-      setPokemonData(details);
-      setLoading(false);
-    };
-    fetchPokemonData();
-  }, [offset]);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [offset]);
+  const res = await getAllPokemon(
+    `https://pokeapi.co/api/v2/pokemon?limit=${LIMIT}&offset=${offset}`
+  );
+  const pokemonData = await Promise.all(
+    res.results.map(async (p: { url: string }) =>
+      toPokemon(await getPokemon(p.url))
+    )
+  );
 
   return (
     <div className={styles.container}>
-      {loading ? (
-        <h1>ロード中…</h1>
-      ) : (
-        <>
-          <div className={styles.grid}>
-            {pokemonData.map((pokemon) => (
-              <Card key={pokemon.id} pokemon={pokemon} />
-            ))}
-          </div>
-          <div className={styles.pagination}>
-            <button
-              onClick={() => setOffset((prev) => Math.max(prev - LIMIT, 0))}
-              disabled={offset === 0}
-            >
-              前へ
-            </button>
-
-            <button onClick={() => setOffset((prev) => prev + LIMIT)}>
-              次へ
-            </button>
-          </div>
-        </>
-      )}
+      <div className={styles.grid}>
+        {pokemonData.map((pokemon) => (
+          <Card key={pokemon.id} pokemon={pokemon} />
+        ))}
+      </div>
+      <div className={styles.pagination}>
+        {offset === 0 ? (
+          <button disabled>前へ</button>
+        ) : (
+          <Link href={`/?offset=${Math.max(offset - LIMIT, 0)}`}>
+            <button>前へ</button>
+          </Link>
+        )}
+        <Link href={`/?offset=${offset + LIMIT}`}>
+          <button>次へ</button>
+        </Link>
+      </div>
     </div>
   );
 }
