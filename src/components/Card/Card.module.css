@@ -38,6 +38,11 @@
   margin-bottom: 8px;
 }
 
+.types > span:not(:last-child)::after {
+  content: "・";
+  margin: 0 4px;
+}
+
 /* ステータス（高さ・重さなど） */
 .stats {
   font-size: 12px;
