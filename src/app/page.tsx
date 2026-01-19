@@ -1,49 +1,44 @@
-import { getAllPokemon, getPokemon } from "../utils/pokemon";
-import { toPokemon } from "../utils/toPokemon";
-import Card from "../components/Card/Card";
-import styles from "./page.module.css";
-import Link from "next/link";
+import Nav from "@/src/components/Nav/Nav";
+import Card from "@/src/components/Card/Card";
+import { getPokemon } from "@/src/utils/pokemon";
+import { toPokemon } from "@/src/utils/toPokemon";
+import styles from "./home.module.css";
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const LIMIT = 20;
-  const { offset: offsetParam } = await searchParams;
-  const offset =
-    Number(Array.isArray(offsetParam) ? offsetParam[0] : offsetParam) || 0;
+const MAX_DEX = 1010; // 現行の全国図鑑上限を想定
+
+const getTodayDexNumber = () => {
+  const now = new Date();
+  const mm = now.getMonth() + 1;
+  const dd = now.getDate();
+  const number = Number(`${mm.toString().padStart(2, "0")}${dd
+    .toString()
+    .padStart(2, "0")}`);
+  // 1〜MAX_DEXに丸める
+  return ((number - 1) % MAX_DEX) + 1;
+};
+
+export default async function Home() {
+  const dexNumber = getTodayDexNumber();
 
   const POKEAPI_BASE_URL =
     process.env.NEXT_PUBLIC_POKEAPI_BASE_URL || "https://pokeapi.co/api/v2";
 
-  const res = await getAllPokemon(
-    `https://pokeapi.co/api/v2/pokemon?limit=${LIMIT}&offset=${offset}`
-  );
-  const pokemonData = await Promise.all(
-    res.results.map(async (p: { url: string }) =>
-      toPokemon(await getPokemon(p.url))
-    )
+  // 日付由来の図鑑番号のポケモンを取得
+  const pokemon = await toPokemon(
+    await getPokemon(`${POKEAPI_BASE_URL}/pokemon/${dexNumber}`)
   );
 
   return (
-    <div className={styles.container}>
-      <div className={styles.grid}>
-        {pokemonData.map((pokemon) => (
-          <Card key={pokemon.id} pokemon={pokemon} />
-        ))}
-      </div>
-      <div className={styles.pagination}>
-        {offset === 0 ? (
-          <button disabled>前へ</button>
-        ) : (
-          <Link href={`/?offset=${Math.max(offset - LIMIT, 0)}`}>
-            <button>前へ</button>
-          </Link>
-        )}
-        <Link href={`/?offset=${offset + LIMIT}`}>
-          <button>次へ</button>
-        </Link>
+    <div className={styles.page}>
+      <Nav current="home" />
+      <div className={styles.hero}>
+        <div className={styles.title}>今日のポケモン</div>
+        <div className={styles.subtitle}>
+          {`本日の日付 → 図鑑番号 ${dexNumber}`}
+        </div>
+        <div className={styles.cardWrapper}>
+          <Card pokemon={pokemon} />
+        </div>
       </div>
     </div>
   );
