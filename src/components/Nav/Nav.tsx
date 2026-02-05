@@ -2,7 +2,7 @@ import Link from "next/link";
 import styles from "./Nav.module.css";
 
 type Props = {
-  current?: "home" | "list";
+  current?: "home" | "list" | "favorites" | "search";
 };
 
 const Nav = ({ current }: Props) => {
@@ -19,6 +19,18 @@ const Nav = ({ current }: Props) => {
         aria-current={current === "list" ? "page" : undefined}
       >
         ポケモン一覧
+      </Link>
+      <Link
+        href="/search"
+        aria-current={current === "search" ? "page" : undefined}
+      >
+        検索
+      </Link>
+      <Link
+        href="/favorites"
+        aria-current={current === "favorites" ? "page" : undefined}
+      >
+        お気に入り
       </Link>
     </nav>
   );
