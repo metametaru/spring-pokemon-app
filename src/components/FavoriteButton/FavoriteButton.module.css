@@ -1,0 +1,22 @@
+.button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: transform 0.2s;
+  color: #ccc;
+}
+
+.button:hover {
+  transform: scale(1.2);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.active {
+  color: #ef5350;
+}
