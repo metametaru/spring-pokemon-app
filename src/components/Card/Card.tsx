@@ -39,7 +39,6 @@ const Card = ({ pokemon }: Props) => {
             {pokemon.abilities.map((ability, index) => (
               <li key={`${ability.name}-${index}`}>
                 {ability.name}
-                {ability.isHidden && "（隠れ特性）"}
               </li>
             ))}
           </ul>
