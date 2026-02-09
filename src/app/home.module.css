@@ -27,6 +27,8 @@
 .cardWrapper {
   display: flex;
   justify-content: center;
-  max-width: 280px;
-  margin: 0 auto;
+}
+
+.cardWrapper > * {
+  width: 280px;
 }
