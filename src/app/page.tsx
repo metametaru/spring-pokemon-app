@@ -4,6 +4,8 @@ import { getPokemon } from "@/src/utils/pokemon";
 import { toPokemon } from "@/src/utils/toPokemon";
 import styles from "./home.module.css";
 
+export const dynamic = "force-dynamic";
+
 const MAX_DEX = 1010; // 現行の全国図鑑上限を想定
 
 const getTodayDexNumber = () => {
